@@ -56,7 +56,6 @@ server {
   enabled = true
   bootstrap_expect = 3
   num_schedulers = 1
-#  retry_join = [ "nomad-01", "nomad-02", "nomad-03" ]
 }
 EOF
 
@@ -78,20 +77,6 @@ install -d /var/lib/consul
 wget -q -O /opt/consul_${CONSUL_VERSION}_linux_amd64.zip https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip
 unzip -o -d /opt/bin /opt/consul_${CONSUL_VERSION}_linux_amd64.zip
 chmod 755 /opt/bin/consul
-
-cat > /tmp/consul.json << EOF
-{
-  "client_addr": "0.0.0.0",
-  "leave_on_terminate": true,
-  "ui": true,
-  "dns_config": {
-    "allow_stale": false
-  },
-  "advertise_addr": "$ADDR",
-  "server": true,
-  "bootstrap_expect": 3
-}
-EOF
 
 cat > /etc/systemd/system/consul.service << EOF
 [Unit]
