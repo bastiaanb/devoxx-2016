@@ -2,14 +2,17 @@
 
 set -e
 
+NOMAD_VERSION=0.4.1
+CONSUL_VERSION=0.7.0
+
 DEV=ens4v1
 ADDR=$(ip addr show dev $DEV | grep -oP 'inet \K[0-9.]+')
 ZONE=$(curl -s --header 'Metadata-Flavor: Google' http://metadata.google.internal/computeMetadata/v1/instance/zone | cut -f4 -d/)
 REGION=$(echo $ZONE | cut -f1-2 -d-)
 
 install -d /opt/bin
-wget -q -O /tmp/nomad.zip https://releases.hashicorp.com/nomad/0.4.1/nomad_0.4.1_linux_amd64.zip
-unzip -o -d /opt/bin /tmp/nomad.zip
+wget -q -O /opt/nomad_${NOMAD_VERSION}_linux_amd64.zip https://releases.hashicorp.com/nomad/${NOMAD_VERSION}/nomad_${NOMAD_VERSION}_linux_amd64.zip
+unzip -o -d /opt/bin /opt/nomad_${NOMAD_VERSION}_linux_amd64.zip
 chmod 755 /opt/bin/nomad
 
 cat > /tmp/nomad.conf << EOF
@@ -72,8 +75,8 @@ systemctl enable nomad
 systemctl start nomad
 
 install -d /var/lib/consul
-wget -q -O /tmp/consul_0.7.0_linux_amd64.zip https://releases.hashicorp.com/consul/0.7.0/consul_0.7.0_linux_amd64.zip
-unzip -o -d /opt/bin /tmp/consul_0.7.0_linux_amd64.zip
+wget -q -O /opt/consul_${CONSUL_VERSION}_linux_amd64.zip https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip
+unzip -o -d /opt/bin /opt/consul_${CONSUL_VERSION}_linux_amd64.zip
 chmod 755 /opt/bin/consul
 
 cat > /tmp/consul.json << EOF
