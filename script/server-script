@@ -11,6 +11,32 @@ ZONE=$(curl -s --header 'Metadata-Flavor: Google' http://metadata.google.interna
 REGION=$(echo $ZONE | cut -f1-2 -d-)
 
 install -d /opt/bin
+install -d /var/lib/consul
+wget -q -O /opt/consul_${CONSUL_VERSION}_linux_amd64.zip https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip
+unzip -o -d /opt/bin /opt/consul_${CONSUL_VERSION}_linux_amd64.zip
+chmod 755 /opt/bin/consul
+
+cat > /etc/systemd/system/consul.service << EOF
+[Unit]
+Description=Consul Agent
+After=docker.service
+[Service]
+TimeoutStartSec=0
+ExecStart=/opt/bin/consul agent -server \
+  -bootstrap-expect=3 \
+  -advertise=$ADDR \
+  -bind=0.0.0.0 \
+  -client=0.0.0.0 \
+  -data-dir=/var/lib/consul \
+  -datacenter=$REGION \
+  -ui
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl enable consul
+systemctl start consul
+
 wget -q -O /opt/nomad_${NOMAD_VERSION}_linux_amd64.zip https://releases.hashicorp.com/nomad/${NOMAD_VERSION}/nomad_${NOMAD_VERSION}_linux_amd64.zip
 unzip -o -d /opt/bin /opt/nomad_${NOMAD_VERSION}_linux_amd64.zip
 chmod 755 /opt/bin/nomad
@@ -72,29 +98,3 @@ EOF
 
 systemctl enable nomad
 systemctl start nomad
-
-install -d /var/lib/consul
-wget -q -O /opt/consul_${CONSUL_VERSION}_linux_amd64.zip https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip
-unzip -o -d /opt/bin /opt/consul_${CONSUL_VERSION}_linux_amd64.zip
-chmod 755 /opt/bin/consul
-
-cat > /etc/systemd/system/consul.service << EOF
-[Unit]
-Description=Consul Agent
-After=docker.service
-[Service]
-TimeoutStartSec=0
-ExecStart=/opt/bin/consul agent -server \
-  -bootstrap-expect=3 \
-  -advertise=$ADDR \
-  -bind=0.0.0.0 \
-  -client=0.0.0.0 \
-  -data-dir=/var/lib/consul \
-  -datacenter=$REGION \
-  -ui
-[Install]
-WantedBy=multi-user.target
-EOF
-
-systemctl enable consul
-systemctl start consul
