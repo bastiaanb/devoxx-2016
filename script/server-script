@@ -41,7 +41,10 @@ client {
 
   servers = ["localhost:4647"]
   node_class = "system"
-
+  meta {
+    zone = "$ZONE"
+    region = "$REGION"
+  }
   network_interface = "$DEV"
   network_speed = 1000
 }
