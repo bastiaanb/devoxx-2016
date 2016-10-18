@@ -70,3 +70,43 @@ EOF
 
 systemctl enable nomad
 systemctl start nomad
+
+install -d /var/lib/consul
+wget -q -O /tmp/consul_0.7.0_linux_amd64.zip https://releases.hashicorp.com/consul/0.7.0/consul_0.7.0_linux_amd64.zip
+unzip -o -d /opt/bin /tmp/consul_0.7.0_linux_amd64.zip
+chmod 755 /opt/bin/consul
+
+cat > /tmp/consul.json << EOF
+{
+  "client_addr": "0.0.0.0",
+  "leave_on_terminate": true,
+  "ui": true,
+  "dns_config": {
+    "allow_stale": false
+  },
+  "advertise_addr": "$ADDR",
+  "server": true,
+  "bootstrap_expect": 3
+}
+EOF
+
+cat > /etc/systemd/system/consul.service << EOF
+[Unit]
+Description=Consul Agent
+After=docker.service
+[Service]
+TimeoutStartSec=0
+ExecStart=/opt/bin/consul agent -server \
+  -bootstrap-expect=3 \
+  -advertise=$ADDR \
+  -bind=0.0.0.0 \
+  -client=0.0.0.0 \
+  -data-dir=/var/lib/consul \
+  -datacenter=$REGION \
+  -ui
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl enable consul
+systemctl start consul
