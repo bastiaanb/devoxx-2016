@@ -10,8 +10,12 @@ HASHICORP_BASEURL=https://storage.googleapis.com/global-datacenter-eu/hashicorp
 DEV=ens4v1
 ADDR=$(ip addr show dev $DEV | grep -oP 'inet \K[0-9.]+')
 ZONE=$(curl -s --header 'Metadata-Flavor: Google' http://metadata.google.internal/computeMetadata/v1/instance/zone | cut -f4 -d/)
-REGION=$(echo $ZONE | cut -f1-2 -d-)
+#REGION=$(cut -f1-2 -d- <<< $ZONE)
+# for brevity we shorten to just the first two characters.
+# NB this does not match Googles definition of regions.
+REGION=$(cut -b1-2 <<< $ZONE)
 NODE_NAME=$(hostname -s)
+CONSUL_SERVER_NAME="nomad-${REGION}-1"
 
 install -d /opt/bin
 install -d /var/lib/consul
@@ -31,6 +35,8 @@ ExecStart=/opt/bin/consul agent \
   -bind=0.0.0.0 \
   -client=0.0.0.0 \
   -data-dir=/var/lib/consul \
+  -retry-join=${CONSUL_SERVER_NAME} \
+  -retry-interval=5s \
   -datacenter=$REGION
 [Install]
 WantedBy=multi-user.target
