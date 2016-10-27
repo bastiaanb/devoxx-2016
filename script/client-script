@@ -100,3 +100,23 @@ EOF
 
 systemctl enable nomad
 systemctl start nomad
+
+cat > /etc/systemd/system/dnsmasq.service << EOF
+[Unit]
+Description=dnsmasq
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill dnsmasq
+ExecStartPre=-/usr/bin/docker rm dnsmasq
+ExecStartPre=/usr/bin/docker pull andyshinn/dnsmasq:2.75
+ExecStart=/usr/bin/docker run --name dnsmasq --net=host --cap-add=NET_ADMIN andyshinn/dnsmasq:2.75 -S /consul/127.0.0.1#8600
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl enable dnsmasq
+systemctl start dnsmasq
