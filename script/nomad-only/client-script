@@ -1,0 +1,77 @@
+#!/bin/bash
+
+set -e
+
+NOMAD_VERSION=0.4.1
+CONSUL_VERSION=0.7.0
+#HASHICORP_BASEURL=https://releases.hashicorp.com
+HASHICORP_BASEURL=https://storage.googleapis.com/global-datacenter-eu/hashicorp
+
+DEV=ens4v1
+ADDR=$(ip addr show dev $DEV | grep -oP 'inet \K[0-9.]+')
+ZONE=$(curl -s --header 'Metadata-Flavor: Google' http://metadata.google.internal/computeMetadata/v1/instance/zone | cut -f4 -d/)
+#REGION=$(cut -f1-2 -d- <<< $ZONE)
+# for brevity we shorten to just the first two characters.
+# NB this does not match Googles definition of regions.
+REGION=$(cut -b1-2 <<< $ZONE)
+NODE_NAME=$(hostname -s)
+
+wget -q -O /opt/nomad_${NOMAD_VERSION}_linux_amd64.zip ${HASHICORP_BASEURL}/nomad/${NOMAD_VERSION}/nomad_${NOMAD_VERSION}_linux_amd64.zip
+unzip -o -d /opt/bin /opt/nomad_${NOMAD_VERSION}_linux_amd64.zip
+chmod 755 /opt/bin/nomad
+
+cat > /tmp/nomad.conf << EOF
+region = "$REGION"
+datacenter = "$ZONE"
+name = "${NODE_NAME}"
+
+bind_addr = "0.0.0.0"
+advertise {
+    http = "$ADDR:4646"
+    rpc = "$ADDR:4647"
+}
+
+enable_debug = true
+enable_syslog = true
+syslog_facility = "LOCAL0"
+log_level = "DEBUG"
+
+data_dir = "/var/local/nomad"
+
+disable_update_check = true
+
+leave_on_interrupt = true
+leave_on_terminate = true
+
+client {
+  enabled = true
+
+  servers = ["nomad-$REGION-1:4647", "nomad-$REGION-2:4647", "nomad-$REGION-3:4647"]
+  node_class = "farm"
+  meta {
+    zone = "$ZONE"
+    region = "$REGION"
+  }
+  network_interface = "$DEV"
+  network_speed = 1000
+
+  # use a resolv.conf that points to consul
+  chroot_env {
+    "/run/systemd/resolve/resolv.conf" = "/etc/resolv.conf"
+  }
+}
+EOF
+
+cat > /etc/systemd/system/nomad.service << EOF
+[Unit]
+Description=Nomad Agent
+After=docker.service
+[Service]
+TimeoutStartSec=0
+ExecStart=/opt/bin/nomad agent -config=/tmp/nomad.conf
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl enable nomad
+systemctl start nomad
