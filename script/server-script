@@ -16,6 +16,8 @@ ZONE=$(curl -s --header 'Metadata-Flavor: Google' http://metadata.google.interna
 REGION=$(cut -b1-2 <<< $ZONE)
 NODE_NAME=$(hostname -s)
 
+RECURSORS=$(sed -n 's/^nameserver /-recursor=/p' /etc/resolv.conf)
+
 install -d /opt/bin
 install -d /var/lib/consul
 wget -q -O /opt/consul_${CONSUL_VERSION}_linux_amd64.zip ${HASHICORP_BASEURL}/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip
@@ -36,13 +38,20 @@ ExecStart=/opt/bin/consul agent -server \
   -client=0.0.0.0 \
   -data-dir=/var/lib/consul \
   -datacenter=$REGION \
-  -ui
+  -ui \
+  -dns-port=53 \
+  $RECURSORS
 [Install]
 WantedBy=multi-user.target
 EOF
 
-systemctl enable consul
-systemctl start consul
+#systemctl enable consul
+#systemctl start consul
+
+cat > /tmp/resolv.conf << EOF
+nameserver 127.0.0.1
+EOF
+grep '^search' /etc/resolv.conf >> /tmp/resolv.conf
 
 wget -q -O /opt/nomad_${NOMAD_VERSION}_linux_amd64.zip ${HASHICORP_BASEURL}/nomad/${NOMAD_VERSION}/nomad_${NOMAD_VERSION}_linux_amd64.zip
 unzip -o -d /opt/bin /opt/nomad_${NOMAD_VERSION}_linux_amd64.zip
@@ -84,6 +93,11 @@ client {
   }
   network_interface = "$DEV"
   network_speed = 1000
+
+  # use a resolv.conf that points to consul
+  chroot_env {
+    "/tmp/resolv.conf" = "/etc/resolv.conf"
+  }
 }
 
 server {
@@ -106,23 +120,3 @@ EOF
 
 systemctl enable nomad
 systemctl start nomad
-
-cat > /etc/systemd/system/dnsmasq.service << EOF
-[Unit]
-Description=dnsmasq
-After=docker.service
-Requires=docker.service
-
-[Service]
-TimeoutStartSec=0
-ExecStartPre=-/usr/bin/docker kill dnsmasq
-ExecStartPre=-/usr/bin/docker rm dnsmasq
-ExecStartPre=/usr/bin/docker pull andyshinn/dnsmasq:2.75
-ExecStart=/usr/bin/docker run --name dnsmasq --net=host --cap-add=NET_ADMIN andyshinn/dnsmasq:2.75 -S /consul/127.0.0.1#8600
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-systemctl enable dnsmasq
-systemctl start dnsmasq
