@@ -16,6 +16,7 @@ ZONE=$(curl -s --header 'Metadata-Flavor: Google' http://metadata.google.interna
 REGION=$(cut -b1-2 <<< $ZONE)
 NODE_NAME=$(hostname -s)
 
+install -d /opt/bin
 wget -q -O /opt/nomad_${NOMAD_VERSION}_linux_amd64.zip ${HASHICORP_BASEURL}/nomad/${NOMAD_VERSION}/nomad_${NOMAD_VERSION}_linux_amd64.zip
 unzip -o -d /opt/bin /opt/nomad_${NOMAD_VERSION}_linux_amd64.zip
 chmod 755 /opt/bin/nomad
@@ -55,9 +56,12 @@ client {
   network_interface = "$DEV"
   network_speed = 1000
 
-  # use a resolv.conf that points to consul
+  # minimize the chroot fs
   chroot_env {
-    "/run/systemd/resolve/resolv.conf" = "/etc/resolv.conf"
+    "/etc" = "/etc"
+    "/run/systemd/resolve" = "/run/systemd/resolve"
+#    "/usr/share/zoneinfo" = "/usr/share/zoneinfo"
+#    "/usr/share/baselayout" = "/usr/share/baselayout"
   }
 }
 EOF
@@ -69,6 +73,8 @@ After=docker.service
 [Service]
 TimeoutStartSec=0
 ExecStart=/opt/bin/nomad agent -config=/tmp/nomad.conf
+ExecReload=/bin/kill -HUP $MAINPID
+LimitNOFILE=65536
 [Install]
 WantedBy=multi-user.target
 EOF

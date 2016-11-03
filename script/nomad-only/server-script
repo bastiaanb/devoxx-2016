@@ -61,9 +61,12 @@ client {
   network_interface = "$DEV"
   network_speed = 1000
 
-  # use a resolv.conf that points to consul
+  # minimize the chroot fs 
   chroot_env {
-    "/run/systemd/resolve/resolv.conf" = "/etc/resolv.conf"
+    "/etc" = "/etc"
+    "/run/systemd/resolve" = "/run/systemd/resolve"
+#    "/usr/share/zoneinfo" = "/usr/share/zoneinfo"
+#    "/usr/share/baselayout" = "/usr/share/baselayout"
   }
 }
 
@@ -81,6 +84,8 @@ After=docker.service
 [Service]
 TimeoutStartSec=0
 ExecStart=/opt/bin/nomad agent -config=/tmp/nomad.conf
+ExecReload=/bin/kill -HUP $MAINPID
+LimitNOFILE=65536
 [Install]
 WantedBy=multi-user.target
 EOF
