@@ -1,6 +1,10 @@
 job "consul" {
   region = "eu"
-  datacenters = ["europe-west1-b", "europe-west1-c", "europe-west1-d"]
+  datacenters = ["europe-west1-b","europe-west1-c","europe-west1-d"]
+#  region = "us"
+#  datacenters = ["us-central1-a","us-central1-b","us-central1-c","us-central1-f"]
+#  region = "as"
+#  datacenters = ["asia-east1-a","asia-east1-b","asia-east1-c"]
 #  datacenters = ["dc1"]
   type = "system"
   update {
