@@ -19,10 +19,10 @@ job "consul" {
     }
 
     # Nomad 0.5 feature: keep data around.
-#    ephemeral_disk {
-#        sticky = true
-#        size = 150
-#    }
+    ephemeral_disk {
+        sticky = true
+        size = 150
+    }
 
     task "consul-agent" {
       driver = "docker"
