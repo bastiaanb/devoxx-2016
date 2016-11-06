@@ -33,6 +33,7 @@ job "helloworld" {
 
       artifact {
         source = "https://storage.googleapis.com/global-datacenter-${meta.region}/helloworld/helloworld-1.0"
+        destination = "local/helloworld"
         options {
           checksum = "sha256:ac5d68980d936a2966cf98776421acaf5a186b5d771a72991706595836334e21"
         }
