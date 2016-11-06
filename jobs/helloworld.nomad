@@ -1,11 +1,10 @@
 job "helloworld" {
   region = "eu"
-  datacenters = ["europe-west1-b","europe-west1-c","europe-west1-d"]
-#  region = "us"
-#  datacenters = ["us-central1-a","us-central1-b","us-central1-c","us-central1-f"]
-#  region = "as"
-#  datacenters = ["asia-east1-a","asia-east1-b","asia-east1-c"]
-#  datacenters = ["dc1"]
+  datacenters = [
+    "europe-west1-b","europe-west1-c","europe-west1-d",
+    "us-central1-a","us-central1-b","us-central1-c","us-central1-f",
+    "asia-east1-a","asia-east1-b","asia-east1-c"
+  ]
   type = "service"
 
   update {
@@ -26,6 +25,39 @@ job "helloworld" {
       config {
         command = "helloworld"
         args = ["from ${node.unique.name} in ${meta.zone}"]
+      }
+
+      env {
+        LISTEN_ADDRESS = "${NOMAD_ADDR_http}"
+      }
+
+      artifact {
+        source = "https://storage.googleapis.com/global-datacenter-${meta.region}/helloworld/helloworld-1.0"
+        options {
+          checksum = "sha256:ac5d68980d936a2966cf98776421acaf5a186b5d771a72991706595836334e21"
+        }
+      }
+
+      resources {
+        cpu = 100
+        memory = 64
+        network {
+          mbits = 1
+          port "http" {}
+        }
+      }
+
+      service {
+        name = "helloworld"
+        tags = ["urlprefix-helloworld.gce.nauts.io/"]
+        port = "http"
+        check {
+          type = "http"
+          name = "health"
+          interval = "15s"
+          timeout = "5s"
+          path = "/health"
+        }
       }
 
       # render list of all local 'helloworld' instances
@@ -54,38 +86,6 @@ job "helloworld" {
 //         change_mode = "noop"
 //       }
 
-      env {
-        NOMAD_CUSTOM_VAR = "some custom value"
-      }
-
-      artifact {
-        source = "https://storage.googleapis.com/global-datacenter-${meta.region}/helloworld/helloworld"
-        options {
-          checksum = "sha256:c606532682729171325a15f8fa637edea517ed8b3181dea3451ca979f50f09a6"
-        }
-      }
-
-      resources {
-        cpu = 100
-        memory = 64
-        network {
-          mbits = 1
-          port "http" {}
-        }
-      }
-
-      service {
-        name = "helloworld"
-        tags = ["urlprefix-helloworld.gce.nauts.io/"]
-        port = "http"
-        check {
-          type = "http"
-          name = "health"
-          interval = "15s"
-          timeout = "5s"
-          path = "/health"
-        }
-      }
     }
   }
 }
