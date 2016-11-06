@@ -10,8 +10,8 @@ job "nomad-ui" {
 #  region = "as"
 #  datacenters = ["asia-east1-a","asia-east1-b","asia-east1-c"]
 
-  # run this job globally
-  type = "service"
+  # run this job on the nomad servers
+  type = "system"
 
   # Rolling updates should be sequential
   update {
@@ -19,10 +19,10 @@ job "nomad-ui" {
     max_parallel = 1
   }
 
-#  constraint {
-#    attribute = "${node.class}"
-#    value = "farm"
-#  }
+  constraint {
+    attribute = "${node.class}"
+    value = "system"
+  }
 
   group "servers" {
     # we want one nomad-ui server
