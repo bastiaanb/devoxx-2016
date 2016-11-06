@@ -28,23 +28,31 @@ job "helloworld" {
         args = ["from ${node.unique.name} in ${meta.zone}"]
       }
 
+      # render list of all local 'helloworld' instances
       // template {
-      //   data = <<EOH
-      //   {{range $dc := datacenters -}}
-      //   {{$dc}}
-      //       {{- $atdc := print "@" $dc -}}
-      //       {{range services $atdc}}
-      //       {{if ne .Name "helloworld" -}}{{.Name}} ({{.Tags}})
-      //           {{$service := print .Name "@" $dc -}}
-      //           {{- range service $service -}}
-      //           {{.Address}}:{{.Port}}
-      //           {{end}}{{end}}
-      //       {{- end}}
-      //   {{- end}}
-      //   EOH
-      //   destination = "foo.txt"
+      //   data = "{{range service \"helloworld\" }}{{.Address}}:{{.Port}}\n{{end}}"
+      //   destination = "peers.txt"
       //   change_mode = "noop"
       // }
+
+      # render all instances of all services in all datacenters
+//       template {
+//         data = <<EOH
+// {{range $dc := datacenters -}}
+// {{$dc}}
+//     {{- $atdc := print "@" $dc -}}
+//     {{range services $atdc}}
+//     {{.Name}} ({{.Tags}})
+//         {{$service := print .Name "@" $dc -}}
+//         {{- range service $service -}}
+//         {{.Address}}:{{.Port}}
+//         {{- end}}
+//     {{- end}}
+// {{- end}}
+// EOH
+//         destination = "services.txt"
+//         change_mode = "noop"
+//       }
 
       env {
         NOMAD_CUSTOM_VAR = "some custom value"
