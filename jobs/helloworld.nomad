@@ -59,7 +59,7 @@ job "helloworld" {
       }
 
       artifact {
-        source = "https://storage.googleapis.com/global-datacenter-eu/helloworld/helloworld"
+        source = "https://storage.googleapis.com/global-datacenter-${meta.region}/helloworld/helloworld"
         options {
           checksum = "sha256:c606532682729171325a15f8fa637edea517ed8b3181dea3451ca979f50f09a6"
         }
