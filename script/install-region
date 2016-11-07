@@ -10,6 +10,16 @@ NODE1=nomad-${REGION}-1
 NODE2=nomad-${REGION}-2
 NODE3=nomad-${REGION}-3
 
+VERSION=$(date +%s)
+gcloud compute instance-templates create "client-${VERSION}" \
+  --machine-type "g1-small" \
+  --image-project "coreos-cloud" \
+  --image-family "coreos-stable" \
+  --boot-disk-size "10GB" \
+  --metadata-from-file startup-script=client-script
+
+gcloud compute instance-groups managed create farm-${REGION} --region ${FULL_REGION} --template client-${VERSION} --size 4
+
 gcloud compute instances create ${NODE1} --zone ${ZONE1} \
   --machine-type g1-small \
   --boot-disk-size 10GB \
@@ -38,17 +48,6 @@ done
 
 gcloud compute ssh ${NODE1} --zone ${ZONE1} -- /opt/bin/nomad server-join ${NODE1} ${NODE2} ${NODE3}
 gcloud compute ssh ${NODE1} --zone ${ZONE1} -- /opt/bin/nomad server-members
-
-
-VERSION=$(date +%s)
-gcloud compute instance-templates create "client-${VERSION}" \
-  --machine-type "g1-small" \
-  --image-project "coreos-cloud" \
-  --image-family "coreos-stable" \
-  --boot-disk-size "10GB" \
-  --metadata-from-file startup-script=client-script
-
-gcloud compute instance-groups managed create farm-${REGION} --region ${FULL_REGION} --template client-${VERSION} --size 4
 
 gcloud compute ssh ${NODE1} --zone ${ZONE1} -- /opt/bin/nomad run /tmp/devoxx-2016/jobs/nomad-ui.nomad
 gcloud compute ssh ${NODE1} --zone ${ZONE1} -- /opt/bin/nomad run /tmp/devoxx-2016/jobs/consul.nomad
