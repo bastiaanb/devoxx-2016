@@ -1,0 +1,16 @@
+#!/bin/bash -x
+
+FULL_REGION=${1:-us-central1}
+ZONE1=${FULL_REGION}-${2:-a}
+ZONE2=${FULL_REGION}-${3:-b}
+ZONE3=${FULL_REGION}-${4:-c}
+
+REGION=$(cut -b 1-2 <<< ${ZONE1})
+NODE1=nomad-${REGION}-1
+NODE2=nomad-${REGION}-2
+NODE3=nomad-${REGION}-3
+
+gcloud compute instance-groups managed delete farm-${REGION} --region ${FULL_REGION}&
+gcloud compute instances delete ${NODE1} --zone ${ZONE1}&
+gcloud compute instances delete ${NODE2} --zone ${ZONE2}&
+gcloud compute instances delete ${NODE3} --zone ${ZONE3}&
