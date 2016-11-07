@@ -12,5 +12,6 @@ gcloud compute ssh http-as --zone asia-east1-b
 gcloud compute ssh http-eu --zone europe-west1-b
 gcloud compute ssh http-us --zone us-central1-b
 
-watch time curl -s http://helloworld.gce.nauts.io/hello
+sudo apt-get install time
+watch -p time curl -s http://helloworld.gce.nauts.io/hello
 while true ; do time curl -s http://helloworld.gce.nauts.io/hello ; done
