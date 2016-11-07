@@ -40,10 +40,10 @@ job "nomad-ui" {
       }
 
       artifact {
-        source = "https://github.com/iverberk/nomad-ui/releases/download/v0.2.1/nomad-ui-linux-amd64"
+        source = "https://github.com/iverberk/nomad-ui/releases/download/v0.3.1/nomad-ui-linux-amd64"
 
         options {
-          checksum = "sha256:4b6f0394698d45fcce05c536442b35b5ff83736cd6050d1c50c2a3959937dd14"
+          checksum = "sha256:cc4032e44f83b0a2dfcf4d05910b633a4eea2bea5d2d29d289d1c993c9fd748c"
         }
       }
 
