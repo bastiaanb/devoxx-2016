@@ -12,10 +12,10 @@ job "fabio" {
   }
 
   group "fabio" {
-    constraint {
-      attribute = "${node.class}"
-      value = "farm"
-    }
+#    constraint {
+#      attribute = "${node.class}"
+#      value = "farm"
+#    }
 
     task "fabio" {
       driver = "exec"
