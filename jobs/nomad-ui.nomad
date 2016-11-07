@@ -23,9 +23,6 @@ job "nomad-ui" {
   }
 
   group "servers" {
-    # we want one nomad-ui server
-    count = 1
-
     # create a web front end using a docker image
     task "nomad-ui" {
       constraint {
@@ -47,20 +44,7 @@ job "nomad-ui" {
         }
       }
 
-      service {
-        name = "nomad-ui"
-        port = "http"
-
-        check {
-          type     = "http"
-          path     = "/"
-          interval = "10s"
-          timeout  = "2s"
-        }
-      }
-
       env {
-#        NOMAD_ADDR = "http://nomad.service.consul:4646"
         NOMAD_ADDR = "http://127.0.0.1:4646"
       }
 
@@ -78,6 +62,18 @@ job "nomad-ui" {
 
           # use a dynamic port
           # port "http" {}
+        }
+      }
+
+      service {
+        name = "nomad-ui"
+        port = "http"
+
+        check {
+          type     = "http"
+          path     = "/"
+          interval = "10s"
+          timeout  = "2s"
         }
       }
     }
