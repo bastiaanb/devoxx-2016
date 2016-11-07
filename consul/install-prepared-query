@@ -1,0 +1,3 @@
+#!/bin/bash -x 
+
+curl --data @catchall.json http://localhost:8500/v1/query
