@@ -1,0 +1,3 @@
+#!/bin/bash
+
+exec gcloud compute ssh http-us --zone us-central1-b

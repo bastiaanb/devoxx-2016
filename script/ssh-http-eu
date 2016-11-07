@@ -1,0 +1,3 @@
+#!/bin/bash
+
+exec gcloud compute ssh http-eu --zone europe-west1-b

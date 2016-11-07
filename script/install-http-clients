@@ -1,0 +1,16 @@
+#!/bin/bash
+
+gcloud compute instances create http-eu --zone europe-west1-b --machine-type "f1-micro" --boot-disk-size "10GB"&
+gcloud compute instances create http-us --zone us-central1-b --machine-type "f1-micro" --boot-disk-size "10GB"&
+gcloud compute instances create http-as --zone asia-east1-b --machine-type "f1-micro" --boot-disk-size "10GB"&
+
+exit
+
+watch gcloud compute instances list http-{eu,us,as}
+
+gcloud compute ssh http-as --zone asia-east1-b
+gcloud compute ssh http-eu --zone europe-west1-b
+gcloud compute ssh http-us --zone us-central1-b
+
+watch time curl -s http://helloworld.gce.nauts.io/hello
+while true ; do time curl -s http://helloworld.gce.nauts.io/hello ; done
