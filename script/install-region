@@ -1,0 +1,44 @@
+#!/bin/bash -x
+
+FULL_REGION=$1
+ZONE1=${FULL_REGION}-$2
+ZONE2=${FULL_REGION}-$3
+ZONE3=${FULL_REGION}-$4
+
+REGION=$(cut -b 1-2 <<< ${ZONE1})
+NODE1=nomad-${REGION}-1
+NODE2=nomad-${REGION}-2
+NODE3=nomad-${REGION}-3
+
+gcloud compute instances create ${NODE1} --zone ${ZONE1} \
+  --machine-type g1-small \
+  --boot-disk-size 10GB \
+  --image-project coreos-cloud \
+  --image-family coreos-stable \
+  --metadata-from-file startup-script=server-script&
+gcloud compute instances create ${NODE2} --zone ${ZONE2}  \
+  --machine-type g1-small \
+  --boot-disk-size 10GB \
+  --image-project coreos-cloud \
+  --image-family coreos-stable \
+  --metadata-from-file startup-script=server-script&
+gcloud compute instances create ${NODE3} --zone ${ZONE3} \
+  --machine-type g1-small \
+  --boot-disk-size 10GB \
+  --image-project coreos-cloud \
+  --image-family coreos-stable \
+  --metadata-from-file startup-script=server-script&
+
+watch -d gcloud compute instances list ${NODE1} ${NODE2} ${NODE3}
+
+gcloud compute instances list ${NODE1} ${NODE2} ${NODE3}
+
+gcloud compute ssh ${NODE1} --zone ${ZONE1} -- /opt/bin/nomad server-join ${NODE1} ${NODE2} ${NODE3}
+gcloud compute ssh ${NODE1} --zone ${ZONE1} -- /opt/bin/nomad server-members
+
+gcloud compute instance-groups managed create farm-${REGION} --region ${FULL_REGION} --template client --size 3
+
+gcloud compute ssh ${NODE1} --zone ${ZONE1} -- /opt/bin/nomad run /tmp/devoxx-2016/jobs/nomad-ui.nomad
+gcloud compute ssh ${NODE1} --zone ${ZONE1} -- /opt/bin/nomad run /tmp/devoxx-2016/jobs/consul.nomad
+gcloud compute ssh ${NODE1} --zone ${ZONE1} -- /opt/bin/nomad run /tmp/devoxx-2016/jobs/fabio.nomad
+gcloud compute ssh ${NODE1} --zone ${ZONE1} -- /opt/bin/nomad run /tmp/devoxx-2016/jobs/helloworld.nomad

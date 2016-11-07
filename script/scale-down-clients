@@ -1,0 +1,5 @@
+#!/bin/bash -x
+
+gcloud compute instance-groups managed resize farm-eu --size 0 --region europe-west1&
+gcloud compute instance-groups managed resize farm-us --size 0 --region us-central1&
+gcloud compute instance-groups managed resize farm-as --size 0 --region asia-east1&
