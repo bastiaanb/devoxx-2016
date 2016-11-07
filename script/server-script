@@ -98,3 +98,4 @@ systemctl start nomad
 cd /tmp
 git clone https://github.com/bastiaanb/devoxx-2016.git
 chmod -R +w /tmp/devoxx-2016
+sed -i "s/region = \"eu\"/region = \"${REGION}\"/g" /tmp/devoxx-2016/jobs/*.nomad
