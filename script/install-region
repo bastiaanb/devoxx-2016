@@ -29,14 +29,26 @@ gcloud compute instances create ${NODE3} --zone ${ZONE3} \
   --image-family coreos-stable \
   --metadata-from-file startup-script=server-script&
 
-watch -d gcloud compute instances list ${NODE1} ${NODE2} ${NODE3}
-
-gcloud compute instances list ${NODE1} ${NODE2} ${NODE3}
+RUNNING=0
+while [ $RUNNING -lt 3 ] ; do
+  sleep 5
+  RUNNING=$(gcloud compute instances list ${NODE1} ${NODE2} ${NODE3} | grep RUNNING | wc -l)
+  echo running $RUNNING
+done
 
 gcloud compute ssh ${NODE1} --zone ${ZONE1} -- /opt/bin/nomad server-join ${NODE1} ${NODE2} ${NODE3}
 gcloud compute ssh ${NODE1} --zone ${ZONE1} -- /opt/bin/nomad server-members
 
-gcloud compute instance-groups managed create farm-${REGION} --region ${FULL_REGION} --template client --size 3
+
+VERSION=$(date +%s)
+gcloud compute instance-templates create "client-${VERSION}" \
+  --machine-type "g1-small" \
+  --image-project "coreos-cloud" \
+  --image-family "coreos-stable" \
+  --boot-disk-size "10GB" \
+  --metadata-from-file startup-script=client-script
+
+gcloud compute instance-groups managed create farm-${REGION} --region ${FULL_REGION} --template client-${VERSION} --size 4
 
 gcloud compute ssh ${NODE1} --zone ${ZONE1} -- /opt/bin/nomad run /tmp/devoxx-2016/jobs/nomad-ui.nomad
 gcloud compute ssh ${NODE1} --zone ${ZONE1} -- /opt/bin/nomad run /tmp/devoxx-2016/jobs/consul.nomad
