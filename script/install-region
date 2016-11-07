@@ -1,9 +1,9 @@
 #!/bin/bash -x
 
-FULL_REGION=$1
-ZONE1=${FULL_REGION}-$2
-ZONE2=${FULL_REGION}-$3
-ZONE3=${FULL_REGION}-$4
+FULL_REGION=${1:-us-central1}
+ZONE1=${FULL_REGION}-${2:-a}
+ZONE2=${FULL_REGION}-${3:-b}
+ZONE3=${FULL_REGION}-${4:-c}
 
 REGION=$(cut -b 1-2 <<< ${ZONE1})
 NODE1=nomad-${REGION}-1
