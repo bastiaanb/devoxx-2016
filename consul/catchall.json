@@ -1,0 +1,12 @@
+{
+    "Name": "",
+    "Template": {
+        "Type": "name_prefix_match"
+    },
+    "Service": {
+        "Service": "${name.full}",
+        "Failover": {
+            "NearestN": 3
+        }
+    }
+}
