@@ -1,0 +1,3 @@
+#!/bin/bash -x
+
+gcloud compute http-health-checks create http-fabio --port 9998 --request-path /routes

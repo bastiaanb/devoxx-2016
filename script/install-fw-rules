@@ -1,0 +1,5 @@
+#!/bin/bash -x
+
+gcloud compute firewall-rules create default-allow-glb-to-fabio \
+    --source-ranges 130.211.0.0/22 \
+    --allow tcp:9998-9999
