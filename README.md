@@ -3,6 +3,8 @@
 Demo setup for a federated Nomad cluster in Google Cloud Platform in EU, US
 and AS (Asia) regions.
 
+Slides: http://www.slideshare.net/asgfdashg/devoxx-2016-talk-going-global-with-nomad-and-google-cloud-platform
+
 ## Prerequisites
 
 ## gcloud
