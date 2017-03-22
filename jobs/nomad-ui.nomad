@@ -24,7 +24,7 @@ job "nomad-ui" {
 
   group "servers" {
     # create a web front end using a docker image
-    task "nomad-ui" {
+    task "hashi-ui" {
       constraint {
         attribute = "${attr.kernel.name}"
         value     = "linux"
@@ -33,19 +33,20 @@ job "nomad-ui" {
       driver = "exec"
 
       config {
-        command = "nomad-ui-linux-amd64"
+        command = "hashi-ui-linux-amd64"
       }
 
       artifact {
-        source = "https://github.com/iverberk/nomad-ui/releases/download/v0.3.1/nomad-ui-linux-amd64"
+        source = "https://storage.googleapis.com/global-datacenter-${meta.region}/hashi-ui/v0.13.4/hashi-ui-linux-amd64 "
 
         options {
-          checksum = "sha256:cc4032e44f83b0a2dfcf4d05910b633a4eea2bea5d2d29d289d1c993c9fd748c"
+          checksum = "sha256:32a286c03fcd8b392bfce1f486f9b2a8d607c82393175e2b855388c7849a50c0"
         }
       }
 
       env {
-        NOMAD_ADDR = "http://127.0.0.1:4646"
+        NOMAD_ENABLE = "1"
+#        CONSUL_ENABLE = "1"
       }
 
       resources {
