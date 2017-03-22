@@ -1,0 +1,4 @@
+export CLOUDSDK_CORE_ACCOUNT=bastiaan.bakker.duo@gmail.com
+export CLOUDSDK_CORE_PROJECT=global-datacenter
+export CLOUDSDK_COMPUTE_REGION=europe-west1
+export CLOUDSDK_COMPUTE_ZONE=europe-west1-d
