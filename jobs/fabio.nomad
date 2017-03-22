@@ -20,7 +20,7 @@ job "fabio" {
     task "fabio" {
       driver = "exec"
       config {
-        command = "fabio-1.3.3-go1.7.1-linux_amd64"
+        command = "fabio-1.3.8-go1.8-linux_amd64"
         args = [
           "-registry.consul.addr", "127.0.0.1:8500",
           "-registry.consul.register.tags", "urlprefix-fabio.gce.nauts.io/"
@@ -28,9 +28,9 @@ job "fabio" {
       }
 
       artifact {
-        source = "https://storage.googleapis.com/global-datacenter-${meta.region}/fabio/fabio-1.3.3-go1.7.1-linux_amd64"
+        source = "https://storage.googleapis.com/global-datacenter-${meta.region}/fabio/fabio-1.3.8-go1.8-linux_amd64"
         options {
-          checksum = "sha256:b4039172e7eff89b7a77ba0721cf0543473cf4bfaf502d72e6407f9aa619a3f6"
+          checksum = "sha256:21d1bf939e3079efafdb228b855411204ed6f4312d0a85fb34992958f4b9d7d0"
         }
       }
 
