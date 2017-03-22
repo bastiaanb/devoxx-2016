@@ -26,7 +26,7 @@ job "consul" {
     task "consul-agent" {
       driver = "docker"
       config {
-        image = "consul:0.7.0"
+        image = "consul:0.7.5"
         network_mode="host"
         command = "agent"
         args = ["-server",
@@ -88,7 +88,7 @@ job "consul" {
     task "consul-agent" {
       driver = "docker"
       config {
-        image = "consul:0.7.0"
+        image = "consul:0.7.5"
         network_mode="host"
         command = "agent"
         args = ["-node=${node.unique.name}",
