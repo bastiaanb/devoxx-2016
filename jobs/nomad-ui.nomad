@@ -37,8 +37,7 @@ job "nomad-ui" {
       }
 
       artifact {
-        source = "https://storage.googleapis.com/global-datacenter-${meta.region}/hashi-ui/v0.13.4/hashi-ui-linux-amd64 "
-
+        source = "https://storage.googleapis.com/global-datacenter-${meta.region}/hashi-ui/v0.13.4/hashi-ui-linux-amd64"
         options {
           checksum = "sha256:32a286c03fcd8b392bfce1f486f9b2a8d607c82393175e2b855388c7849a50c0"
         }
@@ -46,7 +45,7 @@ job "nomad-ui" {
 
       env {
         NOMAD_ENABLE = "1"
-#        CONSUL_ENABLE = "1"
+        CONSUL_ENABLE = "1"
       }
 
       resources {
