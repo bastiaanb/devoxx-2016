@@ -45,7 +45,7 @@ job "nomad-ui" {
 
       env {
         NOMAD_ENABLE = "1"
-        CONSUL_ENABLE = "1"
+#        CONSUL_ENABLE = "1"
       }
 
       resources {
